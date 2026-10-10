@@ -8,17 +8,24 @@ export function useTasks(query, status, page, pageSize) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let active = true;
     setLoading(true);
 
     fetchTasks({ query, status, page, pageSize })
       .then((data) => {
-        setTasks(data.items);
-        setTotal(data.total);
-        setLoading(false);
+        if (active) {
+          setTasks(data.items);
+          setTotal(data.total);
+          setLoading(false);
+        }
       })
       .catch((err) => {
-        setError(err.message);
+        if (active) {
+          setError(err.message);
+        }
       });
+
+    return () => { active = false; };
   }, [query, status, page, pageSize]);
 
   return { tasks, total, loading, error };
